@@ -332,4 +332,8 @@ public abstract class JsonElement {
       throw new AssertionError(e);
     }
   }
+
+  public void cleanup() {
+    // NOOP for JsonElement (no members in class)
+  }
 }

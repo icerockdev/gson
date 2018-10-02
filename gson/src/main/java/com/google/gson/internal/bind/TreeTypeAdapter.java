@@ -66,7 +66,9 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     if (value.isJsonNull()) {
       return null;
     }
-    return deserializer.deserialize(value, typeToken.getType(), context);
+    T result = deserializer.deserialize(value, typeToken.getType(), context);
+    value.cleanup();
+    return result;
   }
 
   @Override public void write(JsonWriter out, T value) throws IOException {
@@ -80,6 +82,7 @@ public final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     }
     JsonElement tree = serializer.serialize(value, typeToken.getType(), context);
     Streams.write(tree, out);
+    tree.cleanup();
   }
 
   private TypeAdapter<T> delegate() {

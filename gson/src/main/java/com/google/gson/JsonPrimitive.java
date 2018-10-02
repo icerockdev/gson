@@ -342,4 +342,11 @@ public final class JsonPrimitive extends JsonElement {
     }
     return false;
   }
+
+  @Override
+  public void cleanup() {
+    super.cleanup();
+
+    value = null;
+  }
 }

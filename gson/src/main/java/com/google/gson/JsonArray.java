@@ -381,4 +381,17 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   public int hashCode() {
     return elements.hashCode();
   }
+
+  @Override
+  public void cleanup() {
+    super.cleanup();
+
+    Iterator<JsonElement> iterator = elements.iterator();
+    while(iterator.hasNext()) {
+      JsonElement element = iterator.next();
+      element.cleanup();
+
+      iterator.remove();
+    }
+  }
 }

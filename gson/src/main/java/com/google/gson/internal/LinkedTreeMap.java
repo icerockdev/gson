@@ -436,6 +436,23 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     return result != null ? result : (keySet = new KeySet());
   }
 
+  public void cleanup() {
+    Iterator<Node<K,V>> iterator = new LinkedTreeMapIterator<Node<K,V>>() {
+      public Node<K, V> next() {
+        return nextNode();
+      }
+    };
+
+    while(iterator.hasNext()) {
+      iterator.next();
+      iterator.remove();
+    }
+
+    clear();
+
+    header.cleanup();
+  }
+
   static final class Node<K, V> implements Entry<K, V> {
     Node<K, V> parent;
     Node<K, V> left;
@@ -520,6 +537,12 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
         child = node.right;
       }
       return node;
+    }
+
+    public void cleanup() {
+      this.parent = null;
+      this.next = null;
+      this.prev = null;
     }
   }
 

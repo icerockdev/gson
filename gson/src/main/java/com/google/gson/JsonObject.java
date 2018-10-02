@@ -215,4 +215,11 @@ public final class JsonObject extends JsonElement {
   public int hashCode() {
     return members.hashCode();
   }
+
+  @Override
+  public void cleanup() {
+    super.cleanup();
+
+    members.cleanup();
+  }
 }
