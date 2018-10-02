@@ -444,8 +444,10 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     };
 
     while(iterator.hasNext()) {
-      iterator.next();
+      Node<K, V> node = iterator.next();
       iterator.remove();
+
+      node.cleanup();
     }
 
     clear();
