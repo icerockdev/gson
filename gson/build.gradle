@@ -11,6 +11,8 @@ targetCompatibility = 1.6
 sourceSets.main.java.exclude("**/module-info.java")
 
 dependencies {
+    compile group: 'com.google.j2objc', name: 'j2objc-annotations', version: '1.3'
+
     testCompile "junit:junit:4.12"
 }
 

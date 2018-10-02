@@ -21,6 +21,8 @@ import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.google.j2objc.annotations.WeakOuter;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -183,22 +185,7 @@ public abstract class TypeAdapter<T> {
    * Note that we didn't need to check for nulls in our type adapter after we used nullSafe.
    */
   public final TypeAdapter<T> nullSafe() {
-    return new TypeAdapter<T>() {
-      @Override public void write(JsonWriter out, T value) throws IOException {
-        if (value == null) {
-          out.nullValue();
-        } else {
-          TypeAdapter.this.write(out, value);
-        }
-      }
-      @Override public T read(JsonReader reader) throws IOException {
-        if (reader.peek() == JsonToken.NULL) {
-          reader.nextNull();
-          return null;
-        }
-        return TypeAdapter.this.read(reader);
-      }
-    };
+    return new NullSafe<T>(this);
   }
 
   /**
@@ -229,12 +216,19 @@ public abstract class TypeAdapter<T> {
    * @since 2.2
    */
   public final JsonElement toJsonTree(T value) {
+    JsonTreeWriter jsonWriter = new JsonTreeWriter();
     try {
-      JsonTreeWriter jsonWriter = new JsonTreeWriter();
       write(jsonWriter, value);
       return jsonWriter.get();
     } catch (IOException e) {
       throw new JsonIOException(e);
+    }
+    finally {
+        try {
+            jsonWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
   }
 
@@ -280,11 +274,42 @@ public abstract class TypeAdapter<T> {
    * @since 2.2
    */
   public final T fromJsonTree(JsonElement jsonTree) {
+    JsonReader jsonReader = new JsonTreeReader(jsonTree);
     try {
-      JsonReader jsonReader = new JsonTreeReader(jsonTree);
       return read(jsonReader);
     } catch (IOException e) {
       throw new JsonIOException(e);
+    } finally {
+      try {
+        jsonReader.close();
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
+      jsonTree.cleanup();
+    }
+  }
+
+  static class NullSafe<T> extends TypeAdapter<T> {
+    private final TypeAdapter<T> wrapped;
+
+    NullSafe(TypeAdapter<T> wrapped) {
+      this.wrapped = wrapped;
+    }
+
+    @Override public void write(JsonWriter out, T value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+      } else {
+        wrapped.write(out, value);
+      }
+    }
+
+    @Override public T read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+        return null;
+      }
+      return wrapped.read(reader);
     }
   }
 }
