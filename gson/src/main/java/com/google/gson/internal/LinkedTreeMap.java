@@ -17,6 +17,8 @@
 
 package com.google.gson.internal;
 
+import com.google.j2objc.annotations.WeakOuter;
+
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.AbstractMap;
@@ -582,6 +584,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
   }
 
+  @WeakOuter
   class EntrySet extends AbstractSet<Entry<K, V>> {
     @Override public int size() {
       return size;
@@ -617,6 +620,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
   }
 
+  @WeakOuter
   final class KeySet extends AbstractSet<K> {
     @Override public int size() {
       return size;
